@@ -1,16 +1,9 @@
-//===----------------------------------------------------------------------===//
 //
-// This source file is part of the SwiftNIO open source project
+//  VMExecHandler.swift
 //
-// Copyright (c) 2020 Apple Inc. and the SwiftNIO project authors
-// Licensed under Apache License v2.0
+//  Created by Jacopo Mangiavacchi on 11/21/20.
+//  Copyright © 2020 Jacopo Mangiavacchi. All rights reserved.
 //
-// See LICENSE.txt for license information
-// See CONTRIBUTORS.txt for the list of SwiftNIO project authors
-//
-// SPDX-License-Identifier: Apache-2.0
-//
-//===----------------------------------------------------------------------===//
 
 import Dispatch
 import Foundation
@@ -26,7 +19,7 @@ enum SSHServerError: Error {
     case notListening
 }
 
-final class ExampleExecHandler: ChannelDuplexHandler {
+final class VMExecHandler: ChannelDuplexHandler {
     typealias InboundIn = SSHChannelData
     typealias InboundOut = ByteBuffer
     typealias OutboundIn = ByteBuffer
@@ -56,18 +49,11 @@ final class ExampleExecHandler: ChannelDuplexHandler {
     }
 
     func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
-
-        print("userInboundEventTriggered")
-
         switch event {
         case let event as SSHChannelRequestEvent.ExecRequest:
-            print("exec request")
-
             self.exec(event, channel: context.channel)
 
         case let event as SSHChannelRequestEvent.EnvironmentRequest:
-            print("environment request")
-
             self.queue.sync {
                 environment[event.name] = event.value
             }
@@ -77,8 +63,6 @@ final class ExampleExecHandler: ChannelDuplexHandler {
             break
 
         default:
-            print("default request \(event)")
-
             context.fireUserInboundEventTriggered(event)
         }
     }
