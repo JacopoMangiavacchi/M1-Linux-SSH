@@ -15,6 +15,12 @@ struct VMService: ParsableCommand {
     @Argument(help: "Path to the Linux ISO file.")
     var linuxPath: String
 
+    @Argument(help: "Path to the vmlinuz file.")
+    var vmlinuzPath: String
+
+    @Argument(help: "Path to the initrd file.")
+    var initrdPath: String
+
     @Option(help: "IP Address.")
     var ip: String = "0.0.0.0"
 
@@ -91,8 +97,6 @@ struct VMService: ParsableCommand {
     }
 
     func run() throws {
-        print("\(username) \(password)")
-
         let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
         defer {
