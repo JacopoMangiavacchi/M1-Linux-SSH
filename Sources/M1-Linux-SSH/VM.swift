@@ -73,7 +73,8 @@ class VM: NSObject, VZVirtualMachineDelegate {
             let vm = VZVirtualMachine(configuration: config)
             vm.delegate = self
             self.virtualMachine = vm
-            
+        
+            print("VM Starting")
             vm.start { result in
                 switch result {
                 case .success:

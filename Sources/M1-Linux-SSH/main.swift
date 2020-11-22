@@ -10,6 +10,7 @@ import Dispatch
 import NIO
 import NIOSSH
 import ArgumentParser
+import Foundation
 
 struct VMService: ParsableCommand {
     @Argument(help: "Path to the Linux ISO file.")
@@ -121,9 +122,19 @@ struct VMService: ParsableCommand {
         print("start on \(ip) port \(port)")
         let channel = try bootstrap.bind(host: ip, port: port).wait()
 
+        // Start VM
+        let kernelURL = URL(fileURLWithPath: vmlinuzPath)
+        let initialRamdiskURL = URL(fileURLWithPath: initrdPath)
+        let bootableImageURL = URL(fileURLWithPath: linuxPath)
+        
+        let vm = VM(kernelURL: kernelURL, initialRamdiskURL: initialRamdiskURL, bootableImageURL: bootableImageURL)
+        
+        vm.start()
+        
         // Run forever
         try channel.closeFuture.wait()
 
+        vm.stop()
         print("stop!")
     }
 }
