@@ -127,7 +127,8 @@ struct VMService: ParsableCommand {
         let initialRamdiskURL = URL(fileURLWithPath: initrdPath)
         let bootableImageURL = URL(fileURLWithPath: linuxPath)
         
-        let vm = VM(kernelURL: kernelURL, initialRamdiskURL: initialRamdiskURL, bootableImageURL: bootableImageURL)
+        let queue = DispatchQueue(label: "vm.async.queue")
+        let vm = VM(kernelURL: kernelURL, initialRamdiskURL: initialRamdiskURL, bootableImageURL: bootableImageURL, queue: queue)
         
         vm.start()
         

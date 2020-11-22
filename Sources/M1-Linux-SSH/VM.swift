@@ -12,16 +12,18 @@ class VM: NSObject, VZVirtualMachineDelegate {
     let kernelURL: URL
     let initialRamdiskURL: URL
     let bootableImageURL: URL
+    let queue: DispatchQueue
 
     private var virtualMachine: VZVirtualMachine?
     
     private let readPipe = Pipe()
     private let writePipe = Pipe()
     
-    init(kernelURL: URL, initialRamdiskURL: URL, bootableImageURL: URL) {
+    init(kernelURL: URL, initialRamdiskURL: URL, bootableImageURL: URL, queue: DispatchQueue) {
         self.kernelURL = kernelURL
         self.initialRamdiskURL = initialRamdiskURL
         self.bootableImageURL = bootableImageURL
+        self.queue = queue
     }
     
     func start() {
@@ -70,12 +72,18 @@ class VM: NSObject, VZVirtualMachineDelegate {
         do {
             try config.validate()
             
-            let vm = VZVirtualMachine(configuration: config)
+            let vm = VZVirtualMachine(configuration: config, queue: queue)
             vm.delegate = self
             self.virtualMachine = vm
-        
-            print("VM Starting")
-            vm.start { result in
+        }
+        catch {
+            print("Error: \(error)")
+            return
+        }
+
+        print("VM Starting")
+        queue.async {
+            self.virtualMachine?.start { result in
                 switch result {
                 case .success:
                     print("VM Started succesfully")
@@ -84,20 +92,19 @@ class VM: NSObject, VZVirtualMachineDelegate {
                     print("VM Failed: \(error)")
                 }
             }
-        } catch {
-            print("Error: \(error)")
-            return
         }
     }
     
     func stop() {
-        if let virtualMachine = virtualMachine {
-            do {
-                try virtualMachine.requestStop()
-            } catch {
-                print("Failed to stop: \(error)")
+        queue.async {
+            if let virtualMachine = self.virtualMachine {
+                do {
+                    try virtualMachine.requestStop()
+                } catch {
+                    print("Failed to stop: \(error)")
+                }
+                self.virtualMachine = nil
             }
-            self.virtualMachine = nil
         }
     }
     
