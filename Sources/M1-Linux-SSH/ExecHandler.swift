@@ -38,6 +38,8 @@ final class ExampleExecHandler: ChannelDuplexHandler {
 
     func handlerAdded(context: ChannelHandlerContext) {
         context.channel.setOption(ChannelOptions.allowRemoteHalfClosure, value: true).whenFailure { error in
+            print(error)
+
             context.fireErrorCaught(error)
         }
     }
@@ -45,6 +47,8 @@ final class ExampleExecHandler: ChannelDuplexHandler {
     func channelInactive(context: ChannelHandlerContext) {
         self.queue.sync {
             if let process = self.process, process.isRunning {
+                print("terminating process")
+
                 process.terminate()
             }
         }
@@ -52,16 +56,29 @@ final class ExampleExecHandler: ChannelDuplexHandler {
     }
 
     func userInboundEventTriggered(context: ChannelHandlerContext, event: Any) {
+
+        print("userInboundEventTriggered")
+
         switch event {
         case let event as SSHChannelRequestEvent.ExecRequest:
+            print("exec request")
+
             self.exec(event, channel: context.channel)
 
         case let event as SSHChannelRequestEvent.EnvironmentRequest:
+            print("environment request")
+
             self.queue.sync {
                 environment[event.name] = event.value
             }
 
+        case let event as SSHChannelRequestEvent.ShellRequest:
+            //TODO
+            break
+
         default:
+            print("default request \(event)")
+
             context.fireUserInboundEventTriggered(event)
         }
     }
