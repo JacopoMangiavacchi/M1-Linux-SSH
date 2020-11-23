@@ -14,10 +14,10 @@ class VM: NSObject, VZVirtualMachineDelegate {
     let bootableImageURL: URL
     let queue: DispatchQueue
 
-    private var virtualMachine: VZVirtualMachine?
+    var virtualMachine: VZVirtualMachine?
     
-    private let readPipe = Pipe()
-    private let writePipe = Pipe()
+    let readPipe = Pipe()
+    let writePipe = Pipe()
     
     init(kernelURL: URL, initialRamdiskURL: URL, bootableImageURL: URL, queue: DispatchQueue) {
         self.kernelURL = kernelURL
