@@ -38,3 +38,7 @@ OPTIONS:
 ```
 ssh 0.0.0.0 -p 2222
 ```
+
+## Credits
+
+This project use the Apple SwiftNIO SSH package (https://github.com/apple/swift-nio-ssh) and it is strongly inspired by the work done by Khaos Tian with the SimpleVM project (https://github.com/KhaosT/SimpleVM)
