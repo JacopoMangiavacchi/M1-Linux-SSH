@@ -12,6 +12,8 @@ import NIOSSH
 import ArgumentParser
 import Foundation
 
+var vmExecHandler = VMExecHandler()
+
 struct VMService: ParsableCommand {
     @Argument(help: "Path to the Linux ISO file.")
     var linuxPath: String
@@ -33,8 +35,7 @@ struct VMService: ParsableCommand {
 
     @Option(help: "SSH Password.")
     var password: String?
-
-
+    
     final class ErrorHandler: ChannelInboundHandler {
         typealias InboundIn = Any
 
@@ -83,7 +84,7 @@ struct VMService: ParsableCommand {
     func sshChildChannelInitializer(_ channel: Channel, _ channelType: SSHChannelType) -> EventLoopFuture<Void> {
         switch channelType {
         case .session:
-            return channel.pipeline.addHandler(VMExecHandler())
+            return channel.pipeline.addHandler(vmExecHandler)
         case .directTCPIP(let target):
             let (ours, theirs) = GlueHandler.matchedPair()
 
@@ -98,6 +99,20 @@ struct VMService: ParsableCommand {
     }
 
     func run() throws {
+        // Start VM
+        let kernelURL = URL(fileURLWithPath: vmlinuzPath)
+        let initialRamdiskURL = URL(fileURLWithPath: initrdPath)
+        let bootableImageURL = URL(fileURLWithPath: linuxPath)
+        
+        let queue = DispatchQueue(label: "vm.async.queue")
+        let vm = VM(kernelURL: kernelURL, initialRamdiskURL: initialRamdiskURL, bootableImageURL: bootableImageURL, queue: queue)
+        
+        vm.start()
+
+        
+        vmExecHandler.outPipe = vm.readPipe
+        vmExecHandler.inPipe = vm.writePipe
+
         let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
 
         defer {
@@ -121,16 +136,6 @@ struct VMService: ParsableCommand {
 
         print("start on \(ip) port \(port)")
         let channel = try bootstrap.bind(host: ip, port: port).wait()
-
-        // Start VM
-        let kernelURL = URL(fileURLWithPath: vmlinuzPath)
-        let initialRamdiskURL = URL(fileURLWithPath: initrdPath)
-        let bootableImageURL = URL(fileURLWithPath: linuxPath)
-        
-        let queue = DispatchQueue(label: "vm.async.queue")
-        let vm = VM(kernelURL: kernelURL, initialRamdiskURL: initialRamdiskURL, bootableImageURL: bootableImageURL, queue: queue)
-        
-        vm.start()
         
         // Run forever
         try channel.closeFuture.wait()
