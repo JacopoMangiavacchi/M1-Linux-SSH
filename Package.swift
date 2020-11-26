@@ -8,6 +8,9 @@ let package = Package(
     platforms: [
         .macOS(.v11)
     ],
+    products: [
+        .executable(name: "vm-service", targets: ["M1-Linux-SSH"])
+    ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
         // .package(url: /* package url */, from: "1.0.0"),
