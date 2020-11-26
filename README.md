@@ -9,7 +9,7 @@ Apple M1 Linux VM with SSH interface
 - Extract vmlinuz and initrd following this:
     1. `sudo mkdir /Volumes/Ubuntu`
     2. `sudo hdiutil attach -nomount /path/to/your/downloaded.iso`
-    3. `sudo mount -t cd9660 /dev/diskX Ubuntu` (X is what the FDisk_partition_scheme from step 2)
+    3. `sudo mount -t cd9660 /dev/diskX /Volumes/Ubuntu` (X is what the FDisk_partition_scheme from step 2)
     4. `open /Volumes/Ubuntu/casper`
     5. Copy `vmlinuz` and `initrd` to your own folder
     6. Rename `vmlinuz` to `vmlinuz.gz` and unarchive it

@@ -66,6 +66,10 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "/Volumes/Ubuntu"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "/Users/jacopo/Downloads/linux-arm/vmlinuz"
             isEnabled = "YES">
          </CommandLineArgument>
