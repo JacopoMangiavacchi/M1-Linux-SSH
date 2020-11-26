@@ -59,8 +59,6 @@ struct VMService: ParsableCommand {
         }
 
         func requestReceived(request: NIOSSHUserAuthenticationRequest, responsePromise: EventLoopPromise<NIOSSHUserAuthenticationOutcome>) {
-            responsePromise.succeed(.success)
-
             if let username = username {
                 guard request.username == username else {
                     print("wrong username")
